@@ -1,0 +1,60 @@
+version: "3.8"
+
+services:
+  n8n:
+    build: .
+    container_name: n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+
+    environment:
+      # Base URLs
+      N8N_HOST: n8n.efmis.com
+      N8N_PROTOCOL: https
+      N8N_PORT: 5678
+      N8N_EDITOR_BASE_URL: https://n8n.efmis.com
+      WEBHOOK_URL: https://n8n.efmis.com
+      N8N_TRUST_PROXY: "true"
+
+      # Timezone
+      TZ: UTC
+      GENERIC_TIMEZONE: UTC
+
+      # Database
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: n8n
+      DB_POSTGRESDB_USER: n8n
+      DB_POSTGRESDB_PASSWORD: ${DB_PASSWORD}
+
+      # Security
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
+
+      # Binary data (important for FFmpeg + files)
+      N8N_BINARY_DATA_MODE: filesystem
+      N8N_BINARY_DATA_STORAGE_PATH: /home/node/.n8n/binaryData
+
+    volumes:
+      - n8n-data:/home/node/.n8n
+
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: n8n-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: n8n
+      POSTGRES_USER: n8n
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+
+volumes:
+  n8n-data:
+  pg-data:
