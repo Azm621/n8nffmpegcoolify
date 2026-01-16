@@ -1,0 +1,8 @@
+# Environment / secrets
+.env
+
+# Logs
+*.log
+
+# Node / temp
+node_modules
